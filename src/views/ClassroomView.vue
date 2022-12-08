@@ -39,7 +39,7 @@
                                     <!-- このアイコンをボタンに変えて、@clickでpair.funeeet.likesを増やす -->
 
                                     <v-btn class="mr-1" icon="mdi-thumb-up"
-                                        @click="(pair.funeeet.likes = pair.funeeet.likes + 1)"></v-btn>
+                                        @click="incrementLikes(pair.funeeet)"></v-btn>
 
                                     <span class="subheading mr-2">{{ pair.funeeet.likes }}</span>
                                 </div>
@@ -156,12 +156,12 @@ export default {
                 })
 
         },
-        incrementLikes() {
+        incrementLikes(funeeet) {
             axios
-                .get("http://localhost:3000/funeeet/")
+                .get("http://localhost:3000/funeeet/" + funeeet["id"])
                 .then(response => {
-                    console.log(response.data);
-                    this.funeeets = response.data;
+                    console.log(response);
+                    this.getFuneeets();
                 })
         }
     }
