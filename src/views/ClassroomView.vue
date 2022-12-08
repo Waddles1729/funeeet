@@ -2,12 +2,17 @@
     <v-layout>
         <v-app-bar :elevation="2">
             <template v-slot:prepend>
-                <v-app-bar-nav-icon></v-app-bar-nav-icon>
             </template>
 
             <v-app-bar-title>情報工学概論1</v-app-bar-title>
+            <v-spacer></v-spacer>
+            <v-btn class="text-h2" variant="flat">
+                FUNEEET
+            </v-btn>
+
         </v-app-bar>
         <v-main class="ml-4 mr-4">
+            <!-- funeeetの一覧表示 -->
             <div v-for="pair in pairsOnSelected" :key="pair">
                 <v-card
                   class="mx-auto mb-2 mt-4"
@@ -38,14 +43,17 @@
 
                       <template v-slot:append>
                         <div class="justify-self-end">
+                          <!-- このアイコンをボタンに変えて、@clickでpair.funeeet.likesを増やす -->
                           <v-icon class="mr-1" icon="mdi-thumb-up"></v-icon>
-                          <span class="subheading mr-2">256</span>
+                          <span class="subheading mr-2">{{pair.funeeet.likes}}</span>
                         </div>
                       </template>
                     </v-list-item>
                   </v-card-actions>
                 </v-card>
             </div>
+            
+            <!-- 新規投稿用のボタンとダイアログ -->
             <div class="mx-auto" style="display: flex; justify-content: flex-end; max-width: 400px;">
                 <v-btn icon="mdi-plus" class="mr-4" style="position: fixed; bottom:0;" color="info">
                     <v-dialog
@@ -58,6 +66,7 @@
                                 clearable
                                 clear-icon="mdi-close-circle"
                                 label="Funeeet yourself!"
+                                v-model="currentFuneeet"
                             >
                             </v-textarea>
 
@@ -71,10 +80,11 @@
             </div>
             
             
+            <!-- paginationの場所 -->
             <div class="text-center">
                 <v-pagination
-                  v-model="page"
-                  :length="pageNum"
+                    v-model="page"
+                    :length="pageNum"
                 ></v-pagination>
             </div>
         </v-main>
@@ -88,7 +98,8 @@ export default {
     name: 'ClassroomView',
     components: {
     },
-    data: () => { return {
+    data: () => {
+        return {
             funeeets: [
                 {
                     "id": 1,
@@ -161,7 +172,9 @@ export default {
             page: 1,
             page_size: 10,
             dialog: false,
-            currentUserName: "飯島 美穂"
+            currentUserName: "飯島 美穂",
+            currentFuneeet: "",
+            lastId: 0
         }
     },
     computed: {
@@ -187,20 +200,21 @@ export default {
         for (let i = 0; i < this.funeeets.length; i++) {
             this.colors.push('#'+(Math.random()*0xFFFFFF<<0).toString(16));
         }
+        this.lastId = this.funeeets.length - 1;
     },
     methods: {
-        scrollToEnd() {
-            this.$nextTick(() => {
-                const funeeet_button = document.getElementById('funeeet_box');
-                if (!funeeet_button) return;
-                funeeet_button.scrollTop = funeeet_button.scrollHeight;
-            })
-        },
         onFuneeet() {
+            this.dialog = false;
+            this.lastId += 1;
+            this.funeeets.unshift({
+                "id": this.lastId,
+                "body": this.currentFuneeet,
+                "name": this.currentUserName,
+                "likes": 0
+            })
+            this.colors.push('#'+(Math.random()*0xFFFFFF<<0).toString(16));
+            this.currentFuneeet = "";
         }
-    },
-    updated() {
-        this.scrollToEnd();
     }
 }
 </script>
