@@ -78,6 +78,7 @@
 
 <script>
 // @ is an alias to /src
+import axios from 'axios'
 
 export default {
     name: 'ClassroomView',
@@ -85,27 +86,7 @@ export default {
     },
     data: () => {
         return {
-            funeeets: [
-                { "id": 1, "name": "飯島 美穂", "text": "test", "date": "2022-02-22T10:25:39", "likes": 1 },
-                { "id": 2, "name": "田中", "text": "テスト", "date": "2022-02-22T10:25:34", "likes": 2 },
-                { "id": 3, "name": "小林", "text": "テストです", "date": "2022-02-22T10:23:27", "likes": 3 },
-                { "id": 4, "name": "小林", "text": "こんにちは", "date": "2022-02-22T10:23:22", "likes": 4 },
-                { "id": 5, "name": "小川", "text": "どうも", "date": "2022-02-22T10:20:51", "likes": 2 },
-                { "id": 6, "name": "佐々木", "text": "こんばんは", "date": "2022-02-22T10:20:01", "likes": 3 },
-                { "id": 7, "name": "小林", "text": "おはよう", "date": "2022-02-22T10:19:18", "likes": 1 },
-                { "id": 8, "name": "飯島 美穂", "text": "ありがとう", "date": "2022-02-22T10:18:21", "likes": 7 },
-                { "id": 9, "name": "田中", "text": "おもしろい！", "date": "2022-02-22T10:15:56", "likes": 3},
-                { "id": 10, "name": "もんじゃ", "text": "おいしい！", "date": "2022-02-22T10:14:32", "likes": 2 },
-                { "id": 11, "name": "かに", "text": "おいしすぎる！", "date": "2022-02-22T10:13:21", "likes": 2 },
-                { "id": 12, "name": "田中", "text": "そうなのか", "date": "2022-02-22T10:11:20", "likes": 5 },
-                { "id": 13, "name": "ラザニア", "text": "うまい！", "date": "2022-02-22T10:11:12", "likes": 10 },
-                { "id": 14, "name": "もんじゃ", "text": "しっかり焼きます", "date": "2022-02-22T10:10:32", "likes": 20 },
-                { "id": 15, "name": "かに", "text": "剥くのが大変です", "date": "2022-02-22T10:10:30", "likes": 30 },
-                { "id": 16, "name": "ラザニア", "text": "作ります", "date": "2022-02-22T10:05:30", "likes": 40 },
-                { "id": 17, "name": "もんじゃ", "text": "焦げ目がいいです", "date": "2022-02-22T10:03:30", "likes": 50 },
-                { "id": 18, "name": "かに", "text": "食べると黙ります", "date": "2022-02-22T10:02:40", "likes": 60 },
-                { "id": 19, "name": "ラザニア", "text": "重ねるとおいしいです", "date": "2022-02-22T10:02:20", "likes": 70 },
-            ],
+            funeeets: [],
             colors: [],
             page: 1,
             page_size: 10,
@@ -138,20 +119,50 @@ export default {
         for (let i = 0; i < this.funeeets.length; i++) {
             this.colors.push('#' + (Math.random() * 0xFFFFFF << 0).toString(16));
         }
-        this.lastId = this.funeeets.length - 1;
+        this.getFuneeets();
     },
     methods: {
         onFuneeet() {
             this.dialog = false;
-            this.lastId += 1;
-            this.funeeets.unshift({
-                "id": this.lastId,
-                "text": this.currentFuneeet,
-                "name": this.currentUserName,
-                "likes": 0
-            })
+            this.createFuneeets();
             this.colors.push('#' + (Math.random() * 0xFFFFFF << 0).toString(16));
             this.currentFuneeet = "";
+        },
+        getFuneeets() {
+            axios
+                .get("http://localhost:3000/funeeet/")
+                .then(response => {
+                    console.log(response.data);
+                    this.funeeets = response.data;
+                })
+        },
+        createFuneeets() {
+            const header = {
+                "Content-type": "application/json"
+            };
+            const body = {
+                "name": this.currentUserName,
+                "text": this.currentFuneeet
+            };
+
+            axios
+                .post("http://localhost:3000/funeeet/", body, {headers: header})
+                .then(response => {
+                    this.getFuneeets();
+                    console.log(response);
+                })
+                .catch((error) => {
+                    console.log(error);
+                })
+
+        },
+        incrementLikes() {
+            axios
+                .get("http://localhost:3000/funeeet/")
+                .then(response => {
+                    console.log(response.data);
+                    this.funeeets = response.data;
+                })
         }
     }
 }
